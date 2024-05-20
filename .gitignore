@@ -2,9 +2,7 @@
 .env
 
 # Ignore certificate files
-certs/*.crt
-certs/*.key
-certs/.certs_created
+certs/*
 nginx*/certs
 
 # Ignore Docker-specific files
