@@ -12,8 +12,8 @@ This project sets up a Cloudflare Zero Trust Argo Tunnel using Docker and Nginx.
 ### Step 1: Clone the Repository
 
 ```sh
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+git clone https://github.com/michaelkandziora/developers.cloudflared-tunnel-subdomains-example 
+cd developers.cloudflared-tunnel-subdomains-example
 ```
 
 ### Step 2: Run the Setup
