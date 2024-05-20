@@ -3,7 +3,9 @@
 
 # Ignore certificate files
 certs/*
+!certs/.persist
 nginx*/certs
+!nginx*/certs/.persist
 
 # Ignore Docker-specific files
 **/logs
