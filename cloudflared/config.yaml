@@ -1,0 +1,12 @@
+tunnel: example-tunnel-test
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  - hostname: nginx1.automa-it.work
+    service: http://nginx1:80
+  - hostname: nginx2.automa-it.work
+    service: http://nginx2:80
+  - hostname: nginx3.automa-it.work
+    service: http://nginx3:80
+  - service: http_status:404
+

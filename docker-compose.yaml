@@ -1,0 +1,106 @@
+#version: '3.8'
+
+services:
+  certs:
+    image: alpine:latest
+    container_name: certs
+    command: ["/bin/sh", "-c", "apk update && apk add --no-cache openssl && chmod +x /scripts/generate_certs.sh && /scripts/generate_certs.sh"]
+    volumes:
+      - ./certs:/etc/nginx/certs
+      - ./scripts:/scripts
+    networks:
+      - tunnel-net
+      - internal-net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yaml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - tunnel-net
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+
+  nginx1:
+    image: nginx:latest
+    container_name: nginx1
+    ports:
+      - "20080:80"
+      - "20443:443"
+    volumes:
+      - ./nginx1/conf:/etc/nginx/conf.d
+      - ./nginx1/certs:/etc/nginx/certs
+      - ./nginx1/html:/usr/share/nginx/html
+    networks:
+      - tunnel-net
+      - internal-net
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  nginx2:
+    image: nginx:latest
+    container_name: nginx2
+    ports:
+      - "21080:80"
+      - "21443:443"
+    volumes:
+      - ./nginx2/conf:/etc/nginx/conf.d
+      - ./nginx2/certs:/etc/nginx/certs
+      - ./nginx2/html:/usr/share/nginx/html
+    networks:
+      - tunnel-net
+      - internal-net
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  nginx3:
+    image: nginx:latest
+    container_name: nginx3
+    ports:
+      - "22080:80"
+      - "22443:443"
+    volumes:
+      - ./nginx3/conf:/etc/nginx/conf.d
+      - ./nginx3/certs:/etc/nginx/certs
+      - ./nginx3/html:/usr/share/nginx/html
+    networks:
+      - tunnel-net
+      - internal-net
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  tunnel-net:
+  internal-net:
+    internal: true
+
