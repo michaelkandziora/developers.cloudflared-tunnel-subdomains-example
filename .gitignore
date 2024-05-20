@@ -1,11 +1,17 @@
 # Ignore environment variable files
 .env
 
-# Ignore certificate files
+# Ignore certificate files in the certs directory
 certs/*
 !certs/.persist
-nginx*/certs
-!nginx*/certs/.persist
+
+# Ignore certificate files in the nginx*/certs directories, except for .persist
+nginx1/certs/*
+!nginx1/certs/.persist
+nginx2/certs/*
+!nginx2/certs/.persist
+nginx3/certs/*
+!nginx3/certs/.persist
 
 # Ignore Docker-specific files
 **/logs
