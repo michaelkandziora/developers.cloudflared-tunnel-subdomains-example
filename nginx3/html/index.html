@@ -1,1 +1,400 @@
-Hello World 3
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Nginx3</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            background-color: black;
+            color: green;
+            font-family: 'Courier New', Courier, monospace;
+            background: #000000 url('https://www.transparenttextures.com/patterns/black-linen.png') repeat; /* Schwarzer Hintergrund mit Struktur */
+        }
+        .terminal {
+            width: 80%;
+            margin: 50px auto 0;
+            padding: 20px;
+            background-color: black;
+            border: 1px solid green;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .line {
+            display: block;
+            margin: 5px 0;
+            text-align: left; /* Text linksbündig */
+        }
+        .ansi-logo {
+            white-space: pre-wrap;
+            color: white;
+            text-align: center;
+            font-size: 0.8vw; /* Viel kleinere Schriftgröße für das Logo */
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ansi-logo pre {
+            max-width: 100%;
+        }
+        .hidden {
+            display: none;
+        }
+        .highlight {
+            color: yellow;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal" id="terminal">
+        <div class="ansi-logo">
+            <pre style="display: inline-block; max-width: 100%;">
+░▒▓████████▓▒░▒▓████████▓▒░░▒▓███████▓▒░▒▓████████▓▒░       ░▒▓███████▓▒░▒▓████████▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░  
+   ░▒▓█▓▒░   ░▒▓█▓▒░      ░▒▓█▓▒░         ░▒▓█▓▒░          ░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓█▓▒░      ░▒▓█▓▒░         ░▒▓█▓▒░          ░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓██████▓▒░  ░▒▓██████▓▒░   ░▒▓█▓▒░           ░▒▓██████▓▒░░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓█▓▒▒▓█▓▒░░▒▓██████▓▒░ ░▒▓███████▓▒░  
+   ░▒▓█▓▒░   ░▒▓█▓▒░             ░▒▓█▓▒░  ░▒▓█▓▒░                 ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▓█▓▒░ ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓█▓▒░             ░▒▓█▓▒░  ░▒▓█▓▒░                 ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▓█▓▒░ ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓████████▓▒░▒▓███████▓▒░   ░▒▓█▓▒░          ░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░  ░▒▓██▓▒░  ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+            </pre>
+        </div>
+        <span id="output" class="line"></span>
+        <span id="admin-output" class="line"></span>
+    </div>
+    <audio id="boot-sound" class="hidden" src="https://www.soundjay.com/button/sounds/beep-07.mp3"></audio>
+    <audio id="type-sound" class="hidden" src="https://www.soundjay.com/button/sounds/beep-09.mp3"></audio>
+    <script>
+        let userIp = '';
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            sound.pause();
+            sound.currentTime = 0;
+            sound.play().catch(error => console.log(error));
+        }
+
+        function typeWriter(text, elementId, callback) {
+            let i = 0;
+            const speed = 5;  // Speed up the typing
+            const element = document.getElementById(elementId);
+
+            function type() {
+                if (i < text.length) {
+                    if (text.charAt(i) === '\n') {
+                        element.innerHTML += '<br>';
+                    } else {
+                        element.innerHTML += text.charAt(i);
+                        playSound('type-sound');
+                    }
+                    i++;
+                    element.scrollTop = element.scrollHeight; // Auto scroll
+                    document.getElementById('terminal').scrollTop = document.getElementById('terminal').scrollHeight; // Scroll the terminal to bottom
+                    window.scrollTo(0, document.body.scrollHeight); // Scroll the browser to bottom
+                    setTimeout(type, speed);
+                } else if (callback) {
+                    callback();
+                }
+            }
+
+            type();
+        }
+
+        function displayUserInfo() {
+            fetch('https://json.geoiplookup.io/')
+                .then(response => response.json())
+                .then(data => {
+                    userIp = data.ip;
+                    const userInfo = `
+root@${userIp}: # IP Address: ${userIp}
+root@${userIp}: # Country: ${data.country_name}
+root@${userIp}: # City: ${data.city}
+root@${userIp}: # ISP: ${data.isp}
+root@${userIp}: # Browser: ${navigator.userAgent}
+root@${userIp}: # OS: ${navigator.platform}
+root@${userIp}: # Language: ${navigator.language}
+                    `;
+                    const introInfo = `
+root@${userIp}: # The following information can be accessed by any web server you visit.
+root@${userIp}: # This project aims to raise awareness about the metadata shared when browsing the internet.
+                    `;
+                    const outroInfo = `
+root@${userIp}: # Stay informed and browse safely.
+                    `;
+                    typeWriter(introInfo, 'output', () => {
+                        typeWriter(userInfo, 'output', () => {
+                            typeWriter(outroInfo, 'output', () => {
+                                document.getElementById('output').innerHTML += "<br>root@${userIp}: # ";
+                                typeWriter(adminCommands, 'admin-output', highlightEasterEgg);
+                            });
+                        });
+                    });
+                });
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function highlightEasterEgg() {
+            const easterEgg = document.getElementById('easter-egg');
+            easterEgg.classList.add('highlight');
+        }
+
+        const uuid = generateUUID();
+
+        const bootSequence = `
+Booting Nginx3...
+Loading kernel modules...
+Initializing system parameters...
+Mounting filesystems...
+Starting network services...
+Starting web server...
+Starting database server...
+Starting application services...
+System ready.
+
+root@${userIp}: # Welcome to Nginx3!
+root@${userIp}: # Fetching user information...
+        `;
+
+        const adminCommands = `
+root@${userIp}: # sudo apt-get update
+Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease
+Get:2 http://archive.ubuntu.com/ubuntu focal-updates InRelease [111 kB]
+Get:3 http://archive.ubuntu.com/ubuntu focal-backports InRelease [98.3 kB]
+Get:4 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]
+...
+root@${userIp}: # sudo apt-get upgrade -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Calculating upgrade... Done
+The following packages will be upgraded:
+  ...
+256 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Need to get 123 MB of archives.
+After this operation, 30.7 MB of additional disk space will be used.
+...
+root@${userIp}: # sudo apt-get install ufw -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  ufw
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 188 kB of archives.
+After this operation, 600 kB of additional disk space will be used.
+...
+root@${userIp}: # sudo ufw enable
+Firewall is active and enabled on system startup
+...
+root@${userIp}: # sudo ufw allow ssh
+Rule added
+Rule added (v6)
+...
+root@${userIp}: # sudo ufw allow http
+Rule added
+Rule added (v6)
+...
+root@${userIp}: # sudo ufw allow https
+Rule added
+Rule added (v6)
+...
+root@${userIp}: # sudo apt-get install fail2ban -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  fail2ban
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 194 kB of archives.
+After this operation, 682 kB of additional disk space will be used.
+...
+root@${userIp}: # sudo systemctl enable fail2ban
+Synchronizing state of fail2ban.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable fail2ban
+...
+root@${userIp}: # sudo apt-get install rkhunter -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  rkhunter
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 2,539 kB of archives.
+After this operation, 11.8 MB of additional disk space will be used.
+...
+root@${userIp}: # sudo rkhunter --check
+[ Rootkit Hunter version 1.4.6 ]
+File updated: searched for 179 files, found 148
+...
+root@${userIp}: # sudo apt-get install clamav -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  clamav
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 8,556 kB of archives.
+After this operation, 42.8 MB of additional disk space will be used.
+...
+root@${userIp}: # sudo systemctl enable clamav-freshclam
+Synchronizing state of clamav-freshclam.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable clamav-freshclam
+...
+root@${userIp}: # sudo systemctl start clamav-freshclam
+...
+root@${userIp}: # sudo freshclam
+ClamAV update process started at Fri May 20 15:28:04 2024
+daily.cvd database is up to date (version: 25912, sigs: 2025731, f-level: 90, builder: raynman)
+...
+root@${userIp}: # sudo apt-get install snapd -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  snapd
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 30.3 MB of archives.
+After this operation, 120 MB of additional disk space will be used.
+...
+root@${userIp}: # sudo snap install core; sudo snap refresh core
+core 16-2.49.2 from Canonical✓ installed
+core 16-2.49.2 from Canonical✓ refreshed
+...
+root@${userIp}: # sudo snap install lxd
+lxd 4.0.6 from Canonical✓ installed
+...
+root@${userIp}: # sudo lxd init
+Would you like to use LXD clustering? (yes/no) [default=no]: 
+Do you want to configure a new storage pool? (yes/no) [default=yes]: 
+Name of the new storage pool [default=default]: 
+Name of the storage backend to use (dir, lvm, zfs, ceph, btrfs) [default=zfs]: 
+Create a new ZFS pool? (yes/no) [default=yes]: 
+Would you like to use an existing block device? (yes/no) [default=no]: 
+Size in GB of the new loop device (1GB minimum) [default=10GB]: 
+Would you like to connect to a MAAS server? (yes/no) [default=no]: 
+Would you like to create a new local network bridge? (yes/no) [default=yes]: 
+What should the new bridge be called? [default=lxdbr0]: 
+What IPv4 address should be used? (CIDR subnet notation, “auto” or “none”) [default=auto]: 
+What IPv6 address should be used? (CIDR subnet notation, “auto” or “none”) [default=auto]: 
+Would you like LXD to be available over the network? (yes/no) [default=no]: 
+Would you like stale cached images to be updated automatically? (yes/no) [default=yes]: 
+Would you like to create a new network bridge? (yes/no) [default=no]: 
+...
+root@${userIp}: # sudo apt-get install borgbackup -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  borgbackup
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 6,982 kB of archives.
+After this operation, 30.4 MB of additional disk space will be used.
+...
+root@${userIp}: # borg init --encryption=repokey /path/to/repo
+Enter new passphrase: 
+Enter same passphrase again: 
+Do you want your passphrase to be displayed for verification? [yN]: N
+By default repositories initialized with this version will produce security
+errors if written to with an older version (up to and including Borg 1.0.x).
+...
+root@${userIp}: # borg create /path/to/repo::backup-{now} /path/to/data
+Enter passphrase for key /path/to/repo: 
+Enumerating files: 100% (1223/1223)
+Archive name: backup-2024-05-20
+Archive size: 12.34GB
+Compression: zlib
+Deduplicated size: 8.12GB
+...
+root@${userIp}: # borg list /path/to/repo
+backup-2024-05-20              Mon, 2024-05-20 16:12:45
+...
+root@${userIp}: # sudo apt-get install openvpn -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  openvpn
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 412 kB of archives.
+After this operation, 1,428 kB of additional disk space will be used.
+...
+root@${userIp}: # sudo systemctl enable openvpn
+Synchronizing state of openvpn.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable openvpn
+...
+root@${userIp}: # sudo apt-get install nginx -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  nginx
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 2,674 kB of archives.
+After this operation, 5,930 kB of additional disk space will be used.
+...
+root@${userIp}: # sudo systemctl start nginx
+...
+root@${userIp}: # sudo systemctl enable nginx
+Synchronizing state of nginx.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable nginx
+...
+root@${userIp}: # sudo apt-get install certbot python3-certbot-nginx -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following NEW packages will be installed:
+  certbot python3-certbot-nginx
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+Need to get 50.7 MB of archives.
+After this operation, 208 MB of additional disk space will be used.
+...
+root@${userIp}: # sudo certbot --nginx
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Plugins selected: Authenticator nginx, Installer nginx
+Which names would you like to activate HTTPS for?
+-------------------------------------------------------------------------------
+1: example.com
+2: www.example.com
+-------------------------------------------------------------------------------
+Select the appropriate numbers separated by commas and/or spaces, or leave input
+blank to select all options shown (Enter 'c' to cancel): 1,2
+...
+Obtaining a new certificate
+Performing the following challenges:
+http-01 challenge for example.com
+http-01 challenge for www.example.com
+Waiting for verification...
+Cleaning up challenges
+Deploying Certificate to VirtualHost /etc/nginx/sites-enabled/default
+...
+Congratulations! You have successfully enabled HTTPS on https://example.com
+...
+root@${userIp}: # echo "Nerd-Egg: schreibe eine mail an dev@automa-it.work mit folgendem key ${uuid}" | sudo tee -a /var/log/nginx/access.log
+###############################################################################
+Nerd-Egg: 
+            send me an e-mail dev@automa-it.work with following key: ${uuid}
+
+            if you re up to, you can join my dev team 
+            ~ Mr. Rabbit
+###############################################################################
+...
+        `;
+
+        playSound('boot-sound');
+        typeWriter(bootSequence, 'output', displayUserInfo);
+    </script>
+</body>
+</html>
+

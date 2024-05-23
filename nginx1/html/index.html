@@ -1,1 +1,153 @@
-Hello World 1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Nginx1</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            background-color: black;
+            color: green;
+            font-family: 'Courier New', Courier, monospace;
+            background: #323232 url('https://www.transparenttextures.com/patterns/black-linen.png') repeat; /* Schwarzer Hintergrund mit Struktur */
+        }
+        .terminal {
+            width: 80%;
+            margin: 50px auto 0;
+            padding: 20px;
+            background-color: black;
+            border: 1px solid green;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .line {
+            display: block;
+            margin: 5px 0;
+            text-align: left; /* Text linksbündig */
+        }
+        .ansi-logo {
+            white-space: pre-wrap;
+            color: white;
+            text-align: center;
+            font-size: 0.8vw; /* Viel kleinere Schriftgröße für das Logo */
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ansi-logo pre {
+            max-width: 100%;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="ansi-logo">
+            <pre style="display: inline-block; max-width: 100%;">
+░▒▓████████▓▒░▒▓████████▓▒░░▒▓███████▓▒░▒▓████████▓▒░       ░▒▓███████▓▒░▒▓████████▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░  
+   ░▒▓█▓▒░   ░▒▓█▓▒░      ░▒▓█▓▒░         ░▒▓█▓▒░          ░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓█▓▒░      ░▒▓█▓▒░         ░▒▓█▓▒░          ░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓██████▓▒░  ░▒▓██████▓▒░   ░▒▓█▓▒░           ░▒▓██████▓▒░░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓█▓▒▒▓█▓▒░░▒▓██████▓▒░ ░▒▓███████▓▒░  
+   ░▒▓█▓▒░   ░▒▓█▓▒░             ░▒▓█▓▒░  ░▒▓█▓▒░                 ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▓█▓▒░ ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓█▓▒░             ░▒▓█▓▒░  ░▒▓█▓▒░                 ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▓█▓▒░ ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+   ░▒▓█▓▒░   ░▒▓████████▓▒░▒▓███████▓▒░   ░▒▓█▓▒░          ░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░  ░▒▓██▓▒░  ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+            </pre>
+        </div>
+        <span id="output" class="line"></span>
+    </div>
+    <audio id="boot-sound" class="hidden" src="https://www.soundjay.com/button/sounds/beep-07.mp3"></audio>
+    <audio id="type-sound" class="hidden" src="https://www.soundjay.com/button/sounds/beep-09.mp3"></audio>
+    <script>
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            sound.pause();
+            sound.currentTime = 0;
+            sound.play().catch(error => console.log(error));
+        }
+
+        function typeWriter(text, elementId, callback) {
+            let i = 0;
+            const speed = 15;  // Speed up the typing
+            const element = document.getElementById(elementId);
+
+            function type() {
+                if (i < text.length) {
+                    if (text.charAt(i) === '\n') {
+                        element.innerHTML += '<br>';
+                    } else {
+                        element.innerHTML += text.charAt(i);
+                        playSound('type-sound');
+                    }
+                    i++;
+                    element.scrollTop = element.scrollHeight; // Auto scroll
+                    window.scrollTo(0, document.body.scrollHeight); // Scroll the browser to bottom
+                    setTimeout(type, speed);
+                } else if (callback) {
+                    callback();
+                }
+            }
+
+            type();
+        }
+
+        function displayUserInfo() {
+            fetch('https://json.geoiplookup.io/')
+                .then(response => response.json())
+                .then(data => {
+                    const userIp = data.ip;
+                    const userInfo = `
+user@server: # IP Address: ${userIp}
+user@server: # Country: ${data.country_name}
+user@server: # City: ${data.city}
+user@server: # ISP: ${data.isp}
+user@server: # Browser: ${navigator.userAgent}
+user@server: # OS: ${navigator.platform}
+user@server: # Language: ${navigator.language}
+                    `;
+                    const introInfo = `
+user@server: # The following information can be accessed by any web server you visit.
+user@server: # This project aims to raise awareness about the metadata shared when browsing the internet.
+                    `;
+                    const outroInfo = `
+user@server: # Stay informed and browse safely.
+                    `;
+                    typeWriter(introInfo, 'output', () => {
+                        typeWriter(userInfo, 'output', () => {
+                            typeWriter(outroInfo, 'output', () => {
+                                document.getElementById('output').innerHTML += "<br>user@server: # ";
+                            });
+                        });
+                    });
+                });
+        }
+
+        const bootSequence = `
+Booting Nginx1...
+Loading kernel modules...
+Initializing system parameters...
+Mounting filesystems...
+Starting network services...
+Starting web server...
+Starting database server...
+Starting application services...
+System ready.
+
+user@server: # Welcome to Nginx1!
+user@server: # Fetching user information...
+        `;
+
+        playSound('boot-sound');
+        typeWriter(bootSequence, 'output', displayUserInfo);
+    </script>
+</body>
+</html>
+
